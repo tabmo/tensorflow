@@ -504,15 +504,6 @@ cc_binary(
     ],
 )
 
-#filegroup(
-#    name = "headers",
-#    srcs = glob( 
-#	["**/*.h"], 
-#	exclude =[],
-#    ),
-#    visibility = ["//tensorflow:__subpackages__"],
-#)
-
 cc_library(
     name = "headers",
     hdrs = glob( 

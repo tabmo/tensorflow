@@ -827,17 +827,12 @@ def _get_repository_roots(ctx, files):
 # Bazel rule for collecting the header files that a target depends on.
 def _transitive_hdrs_impl(ctx):
   outputs = set()
-  #substr = ctx.attr.contains
   for dep in ctx.attr.deps:
-   print(dep.label.package)
-   print("\n")
    substr = dep.label.package
    if substr != "":
     outputs += [ x for x in dep.cc.transitive_headers if substr in str(x)] 
    else:
     outputs += dep.cc.transitive_headers
-  #for o in outputs:
-  # print(str(o) +"\n")
   return struct(files=outputs)
 
 

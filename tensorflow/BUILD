@@ -433,7 +433,7 @@ transitive_hdrs(
         "//tensorflow/core:protos_all_cc",                                                                
         "//tensorflow/core:stream_executor",                                                              
     ],                                                                                                   
-    contains = "tensorflow" 
+    limit_to_package = True
 ) 
 
 transitive_hdrs(                                                                                          

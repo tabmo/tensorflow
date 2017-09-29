@@ -828,8 +828,8 @@ def _get_repository_roots(ctx, files):
 def _transitive_hdrs_impl(ctx):
   outputs = set()
   for dep in ctx.attr.deps:
-   substr = dep.label.package
-   if substr != "":
+   if ctx.attr.limit_to_package:
+    substr = dep.label.package
     outputs += [ x for x in dep.cc.transitive_headers if substr in str(x)] 
    else:
     outputs += dep.cc.transitive_headers
@@ -841,14 +841,14 @@ _transitive_hdrs = rule(
         "deps": attr.label_list(
             allow_files=True,
             providers=["cc"],),
-	"contains":
-            attr.string(mandatory=False),
+	"limit_to_package":
+            attr.bool(mandatory=False),
     },
     implementation=_transitive_hdrs_impl,)
 
 
-def transitive_hdrs(name, deps=[], contains="", **kwargs):
-  _transitive_hdrs(name=name + "_gather", deps=deps, contains=contains)
+def transitive_hdrs(name, deps=[], limit_to_package=False, **kwargs):
+  _transitive_hdrs(name=name + "_gather", deps=deps, limit_to_package=limit_to_package)
   native.filegroup(name=name, srcs=[":" + name + "_gather"])
 
 

@@ -484,7 +484,7 @@ pkg_tar(
 )
 
 pkg_tar(
-    name = "libtensorflow_dev_lib",
+    name = "libtensorflow_lib",
     strip_prefix = ".",
     package_dir = "/usr/local/lib",
     srcs = [
@@ -499,7 +499,6 @@ pkg_tar(
     strip_prefix = ".",
     extension = "tar.gz",
     deps = [
-	"//tensorflow:libtensorflow_dev_lib",
         "//tensorflow:libtensorflow_dev_headers",
         "//tensorflow:libtensorflow_dev_3rdp_headers",
         "//tensorflow:libtensorflow_dev_eigen",
@@ -510,14 +509,29 @@ pkg_tar(
 pkg_deb(
     name = "libtensorflow_deb",
     architecture = "amd64",
-    built_using = "libtensorflow r1.3",
-    data = ":libtensorflow_dev",
+    built_using = "libtensorflow (1.3.0)",
+    data = ":libtensorflow_lib",
     depends = [],
-    description = "libtensorflow packaged as deb",
-    homepage = "http://",
-    maintainer = "some email",
+    description = "libtensorflow CPU", 
+    homepage = "https://github.com/tabmo/tensorflow",
+    maintainer = "damien.castelltort@tabmo.io",
+    package = "libtensorflow",
+    version = "1.3.0",
+    priority = "optional"
+)
+
+pkg_deb(
+    name = "libtensorflow-dev_deb",
+    architecture = "amd64",
+    built_using = "libtensorflow (1.3.0)",
+    data = ":libtensorflow_dev",
+    depends = [ "libtensorflow" ],
+    description = "libtensorflow C/C++ packaged as deb for development", 
+    homepage = "https://github.com/tabmo/tensorflow",
+    maintainer = "damien.castelltort@tabmo.io",
     package = "libtensorflow-dev",
     version = "1.3.0",
+    priority = "optional"
 )
 
 # -------------------------------------------

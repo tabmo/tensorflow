@@ -827,8 +827,17 @@ def _get_repository_roots(ctx, files):
 # Bazel rule for collecting the header files that a target depends on.
 def _transitive_hdrs_impl(ctx):
   outputs = set()
+  #substr = ctx.attr.contains
   for dep in ctx.attr.deps:
+   print(dep.label.package)
+   print("\n")
+   substr = dep.label.package
+   if substr != "":
+    outputs += [ x for x in dep.cc.transitive_headers if substr in str(x)] 
+   else:
     outputs += dep.cc.transitive_headers
+  #for o in outputs:
+  # print(str(o) +"\n")
   return struct(files=outputs)
 
 
@@ -837,12 +846,14 @@ _transitive_hdrs = rule(
         "deps": attr.label_list(
             allow_files=True,
             providers=["cc"],),
+	"contains":
+            attr.string(mandatory=False),
     },
     implementation=_transitive_hdrs_impl,)
 
 
-def transitive_hdrs(name, deps=[], **kwargs):
-  _transitive_hdrs(name=name + "_gather", deps=deps)
+def transitive_hdrs(name, deps=[], contains="", **kwargs):
+  _transitive_hdrs(name=name + "_gather", deps=deps, contains=contains)
   native.filegroup(name=name, srcs=[":" + name + "_gather"])
 
 
@@ -1238,3 +1249,4 @@ def cc_library_with_android_deps(deps,
                                  **kwargs):
   deps = if_not_android(deps) + if_android(android_deps) + common_deps
   native.cc_library(deps=deps, **kwargs)
+

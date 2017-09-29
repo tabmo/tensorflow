@@ -20,9 +20,15 @@ load(
 # -----------------------------------------------------------------------------
 # Public targets
 
-filegroup(
+#filegroup(
+#    name = "headers",
+#    srcs = ["c_api.h"],
+#    visibility = ["//tensorflow:__subpackages__"],
+#)
+
+cc_library(
     name = "headers",
-    srcs = ["c_api.h"],
+    hdrs = ["c_api.h"],
     visibility = ["//tensorflow:__subpackages__"],
 )
 

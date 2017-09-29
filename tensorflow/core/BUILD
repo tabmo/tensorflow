@@ -2966,6 +2966,15 @@ cc_library(
     ] + tf_additional_libdevice_deps(),
 )
 
+filegroup(
+    name = "headers",
+    srcs = glob(
+        ["**/*.h"],
+        exclude =[],
+    ),
+    visibility = ["//tensorflow:__subpackages__"],
+)
+
 # -----------------------------------------------------------------------------
 # Google-internal targets go here (must be at the end).
 

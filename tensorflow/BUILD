@@ -1,7 +1,10 @@
-# Description:
+# Description:.
 # TensorFlow is a computational framework, primarily for use in machine
 # learning applications.
 
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar", "pkg_deb")
+load("//tensorflow:tensorflow.bzl","transitive_hdrs", "cc_header_only_library")
+ 
 package(default_visibility = [":internal"])
 
 licenses(["notice"])  # Apache 2.0
@@ -413,6 +416,108 @@ filegroup(
 filegroup(
     name = "docs_src",
     data = glob(["docs_src/**/*.md"]),
+)
+
+# ---------------------------------------------------------------------
+# Rules related to tarball/deb creation for C/C++ package distribution 
+# ---------------------------------------------------------------------
+transitive_hdrs(                                                                                          
+    name = "included_headers",                                                                            
+    deps = [                                                                                              
+	"//tensorflow/c:headers", 
+	"//tensorflow/cc:headers",
+	"//tensorflow/cc/saved_model:loader",
+        "//tensorflow/core:core_cpu",                                                                     
+        "//tensorflow/core:framework",                                                                    
+        "//tensorflow/core:lib",                                                                          
+        "//tensorflow/core:protos_all_cc",                                                                
+        "//tensorflow/core:stream_executor",                                                              
+    ],                                                                                                   
+    contains = "tensorflow" 
+) 
+
+transitive_hdrs(                                                                                          
+    name = "included_3rdp_headers",                                                                           deps = [                                                                                              
+        "//third_party/eigen3",
+    ],                                                                                                   
+) 
+
+transitive_hdrs(                                                                                          
+    name = "included_eigen_headers",                                                                           deps = [ 
+      "@eigen_archive//:eigen",
+    ],                                                                                                   
+) 
+
+pkg_tar(
+    name = "libtensorflow_dev_headers",
+    strip_prefix = ".",
+    package_dir = "/usr/local/include/tensorflow/tensorflow",
+    srcs = [
+	":included_headers",
+    ],    
+    mode = "0644",
+)
+
+
+pkg_tar(
+    name = "libtensorflow_dev_3rdp_headers",
+    strip_prefix = ".",
+    package_dir = "/usr/local/include/tensorflow",
+    srcs = [
+	":included_3rdp_headers",
+    ],    
+    mode = "0644",
+)
+
+pkg_tar(
+    name = "libtensorflow_dev_eigen",
+    strip_prefix = ".",
+    package_dir = "/usr/local/include/tensorflow",
+    srcs = [
+	":included_eigen_headers",
+    ],    
+    symlinks = { 
+	"/usr/local/include/tensorflow/unsupported": "/usr/local/include/eigen_archive/unsupported",
+	"/usr/local/include/tensorflow/Eigen": "/usr/local/include/eigen_archive/Eigen",
+    },
+    mode = "0644",
+)
+
+pkg_tar(
+    name = "libtensorflow_dev_lib",
+    strip_prefix = ".",
+    package_dir = "/usr/local/lib",
+    srcs = [
+	"libtensorflow.so",
+     	"libtensorflow_cc.so"
+    ],
+    mode = "0755",
+)
+
+pkg_tar(
+    name = "libtensorflow_dev",
+    strip_prefix = ".",
+    extension = "tar.gz",
+    deps = [
+	"//tensorflow:libtensorflow_dev_lib",
+        "//tensorflow:libtensorflow_dev_headers",
+        "//tensorflow:libtensorflow_dev_3rdp_headers",
+        "//tensorflow:libtensorflow_dev_eigen",
+    ],
+    mode = "0644"
+)
+
+pkg_deb(
+    name = "libtensorflow_deb",
+    architecture = "amd64",
+    built_using = "libtensorflow r1.3",
+    data = ":libtensorflow_dev",
+    depends = [],
+    description = "libtensorflow packaged as deb",
+    homepage = "http://",
+    maintainer = "some email",
+    package = "libtensorflow-dev",
+    version = "1.3.0",
 )
 
 # -------------------------------------------
